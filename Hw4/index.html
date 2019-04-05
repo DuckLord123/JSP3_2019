@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>jokE</title>
+    <style>
+      .boundingBox {
+        border: 3px solid;
+        border-color: Blue;
+      }
+    </style>
+</head>
+
+<body>
+    <div class="boundingBox dothecalculations">
+      <div id ="parent-id">
+          <p> hello word1 </p>
+          <p id="test1">hello word2</p>
+          <p>hello word3</p>
+          <p>hello word4</p>
+      </div>
+    </div>
+    <div id="parent-id">
+        <p> hello word1</p>
+        <p id="test1">hello word2</p>
+        <p >hello word3</p>
+        <p>hello word4</p>
+    </div>
+  </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+    let parentDOM = document.getElementById('parent-id');
+    let test1 = document.getElementById('test1');
+      async function a(){
+        return await $.ajax({
+          type: 'GET',
+          url: "https://official-joke-api.appspot.com/jokes/random",
+          datatype: "json",
+          success: (data) => {
+            parentDOM.innerHTML = data.setup + "\n" + data.punchline;
+          }
+          });
+      }
+      a();
+      //var hello = const 0;
+      /*for (let i = 0; i < 100; i++){
+        test1.value += test1.value + " " + i;
+      }*/
+    </script>
+    <div class="boundingBoxdothecalculations">
+      <div id="parent-id">
+          <p> hello word1</p>
+          <p id="test1">hello word2</p>
+          <p >hello word3</p>
+          <p>hello word4</p>
+</body>
+</html>
