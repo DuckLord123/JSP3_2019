@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<head>
+<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js"></script>
+<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js";> </script>
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+  </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+
+    <script>
+      mapboxgl.accessToken = "pk.eyJ1IjoiZHVja2xvcmQiLCJhIjoiY2p1NG9qYXZrMTA4czN5cXZoZXdhdWkzaCJ9.SFxYX_3JTwBtVKFM8cf3QQ";
+
+        /* Map: This represents the map on the page. */
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/dark-v9",
+        zoom: 4.11,
+        center: [-81.3981,37.0446]
+      });
+
+      map.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true
+      }));
+      let markers = [];
+      $.ajax({
+        type: 'GET',
+        url: "https://data.cityofnewyork.us/resource/a2h9-9z38.json",
+          dataType: 'json',
+          success: (data) => {
+
+            for(let i = 0; i < 1000; i++){
+              console.log(i)
+              markers.push({
+                type: 'Feature',
+                properties: {
+                  "description": `<p> ${data[i].street_name} <p>`,
+                  "icon": "theatre"
+                },
+                geometry: {
+                  type: "Point",
+                  coordinates: [data[i].longitude, data[i].latitude]
+                }
+              });
+            }
+          }
+      })
+      map.on("load", function () {
+        /* Image: An image is loaded and added to the map. */
+        map.loadImage("https://i.imgur.com/MK4NUzI.png", function(error, image) {
+          if (error) throw error;
+          map.addImage("custom-marker", image);
+          /* Style layer: A style layer ties together the source and image and specifies how they are displayed on the map. */
+          map.addLayer({
+            id: "markers",
+            type: "symbol",
+            /* Source: A data source specifies the geographic coordinate where the image marker gets placed. */
+            source: {
+              type: "geojson",
+              data: {
+                type: 'FeatureCollection',
+                features: markers
+              }
+            },
+            layout: {
+              "icon-image": "custom-marker",
+            }
+          });
+        });
+
+        map.on('click', 'markers', function (e) {
+        var coordinates = e.features[0].geometry.coordinates.slice();
+        var description = e.features[0].properties.description;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(description)
+        .addTo(map);
+        });
+        map.on('mouseenter', 'markers', () => {
+        map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', 'markers', () => {
+        map.getCanvas().style.cursor = '';
+        });
+      });
+    </script>
+
+</body>
+</html>
